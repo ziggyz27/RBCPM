@@ -1,0 +1,241 @@
+<title>Four Roads to Staging</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ink: #1E2761;
+    --ink-deep: #12163A;
+    --surface: #F4F6FC;
+    --surface-card: #FFFFFF;
+    --surface-sunken: #ECF0FA;
+    --line: #D7DEEE;
+    --line-strong: #B9C4E2;
+    --muted: #5C6B9E;
+    --text: #1B2140;
+    --text-dim: #6B7599;
+    --gold: #A47A14;
+    --gold-soft: #F3E7CB;
+    --good: #1B8A5A;
+    --good-soft: #DFF3E9;
+    --info: #2E7FE0;
+    --info-soft: #E3EDFC;
+    --shadow: 0 1px 2px rgba(20, 27, 74, 0.06), 0 12px 32px -16px rgba(20, 27, 74, 0.22);
+    --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #AEC0F2; --ink-deep: #060915; --surface: #0B0F24; --surface-card: #141A38;
+      --surface-sunken: #10152C; --line: #2A3260; --line-strong: #3A4380; --muted: #96A3D6;
+      --text: #E7ECFC; --text-dim: #8D98C7; --gold: #E0B85C; --gold-soft: #3A2E12;
+      --good: #4FC98A; --good-soft: #123424; --info: #6FA4F2; --info-soft: #12244A;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 20px 48px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #AEC0F2; --ink-deep: #060915; --surface: #0B0F24; --surface-card: #141A38;
+    --surface-sunken: #10152C; --line: #2A3260; --line-strong: #3A4380; --muted: #96A3D6;
+    --text: #E7ECFC; --text-dim: #8D98C7; --gold: #E0B85C; --gold-soft: #3A2E12;
+    --good: #4FC98A; --good-soft: #123424; --info: #6FA4F2; --info-soft: #12244A;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 20px 48px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface); color: var(--text); font-family: var(--font-ui);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: clamp(12px, 3vw, 40px);
+  }
+
+  .sheet {
+    width: min(1400px, 100%); background: var(--surface-card); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(20px, 3cqw, 40px);
+  }
+  .kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; color: var(--gold); font-weight: 500; margin: 0 0 6px; }
+  h1 { font-size: clamp(21px, 2.6vw, 30px); font-weight: 700; color: var(--ink); margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { font-size: 14px; color: var(--text-dim); margin: 0 0 28px; max-width: 78ch; line-height: 1.55; }
+
+  figure { margin: 0; }
+  .diagram-frame {
+    background: var(--surface-sunken); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; overflow-x: auto;
+  }
+  svg { display: block; width: 100%; height: auto; min-width: 900px; }
+  figcaption { font-size: 12.5px; color: var(--text-dim); margin-top: 14px; max-width: 90ch; line-height: 1.6; }
+  figcaption strong { color: var(--text); font-weight: 600; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); }
+  .legend-swatch { width: 22px; height: 3px; border-radius: 2px; flex: none; }
+  .legend-swatch.solid { background: var(--line-strong); }
+  .legend-swatch.loop { background: var(--info); }
+  .legend-swatch.ghost { background: var(--text-dim); background-image: repeating-linear-gradient(90deg, var(--text-dim) 0 4px, transparent 4px 8px); background-color: transparent; }
+  .legend-swatch.gold { background: var(--gold); }
+
+  /* ---------- SVG node/edge styling ---------- */
+  .box-rect { fill: var(--surface-card); stroke: var(--line-strong); stroke-width: 1.5; }
+  .box-gold .box-rect { fill: var(--gold-soft); stroke: var(--gold); }
+  .box-ghost .box-rect { fill: var(--surface-sunken); stroke: var(--line-strong); stroke-dasharray: 4 4; }
+  .box-tag { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+  .box-title { font-family: var(--font-ui); font-size: 13px; font-weight: 600; fill: var(--text); }
+  .box-ghost .box-title, .box-ghost .box-tag { fill: var(--text-dim); }
+  .box-gold .box-tag { fill: var(--gold); }
+
+  .diamond-rect { fill: var(--ink-deep); stroke: var(--ink-deep); }
+  .diamond-title { font-family: var(--font-ui); font-size: 13px; font-weight: 700; fill: #ffffff; }
+
+  .start-dot { fill: var(--gold); }
+  .start-label { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+
+  .edge { stroke: var(--line-strong); stroke-width: 1.5; fill: none; }
+  .edge-converge { stroke: var(--line-strong); stroke-width: 1.3; opacity: 0.75; }
+  .edge-loop { stroke: var(--info); stroke-width: 1.5; }
+  .edge-ghost { stroke: var(--text-dim); stroke-width: 1.5; }
+  .arrowhead { fill: var(--line-strong); }
+  .arrowhead-ghost { fill: var(--text-dim); }
+  .fan-tag { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); }
+  .loop-label { font-family: var(--font-ui); font-size: 11px; fill: var(--info); font-weight: 600; }
+</style>
+
+<div class="sheet">
+  <p class="kicker">SELF-SERVE PLATFORM &middot; WIZARD FLOW</p>
+  <h1>Four Roads to Staging</h1>
+  <p class="lede">Every request enters through one decision — what are you deploying — then branches into its own next-logical questions. All four paths converge on the same governance, review, and staging gate, so no matter what someone builds, it ships through one consistent, testable release path.</p>
+
+  <figure>
+    <div class="diagram-frame">
+      <svg viewBox="0 0 1700 640" role="img" aria-label="Four entry points—Workflow, Form or Catalog Item, Approval Process, and Self-Serve App—each branch through their own next-logical questions, converge on Access and Governance, then Review and Validate where Edit jumps back to any step before returning to Review, then Publish to Staging, with Promote to Production gated behind test sign-off.">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrowhead"/>
+    </marker>
+    <marker id="arrow-ghost" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrowhead-ghost"/>
+    </marker>
+  </defs>
+
+  <g class="node">
+    <polygon points="150,207.0 204.0,261 150,315.0 96.0,261" class="diamond-rect"/>
+    <text x="150" y="255" class="diamond-title" text-anchor="middle">What are you</text>
+    <text x="150" y="275" class="diamond-title" text-anchor="middle">deploying?</text>
+  </g>
+
+  <g class="node">
+    <circle cx="30" cy="261" r="7" class="start-dot"/>
+    <text x="30" y="245" class="start-label" text-anchor="middle">Start</text>
+  </g>
+<path d="M 37 261 L 92.0 261" class="edge" marker-end="url(#arrow)"/>
+<path d="M 196 211 L 400 95" class="edge" marker-end="url(#arrow)"/>
+<text x="298" y="145" class="fan-tag" text-anchor="middle">workflow.deploy()</text>
+
+  <g class="node ">
+    <rect x="400" y="66" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="414" y="87" class="box-tag">trigger.*()</text>
+    <text x="414" y="107" class="box-title">Trigger</text>
+  </g>
+
+  <g class="node ">
+    <rect x="602" y="66" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="616" y="87" class="box-tag">action.*()</text>
+    <text x="616" y="107" class="box-title">Action</text>
+  </g>
+<path d="M 568 95.0 L 602 95.0" class="edge" marker-end="url(#arrow)"/>
+<path d="M 196 250 L 400 225" class="edge" marker-end="url(#arrow)"/>
+<text x="298" y="230" class="fan-tag" text-anchor="middle">form.deploy()</text>
+
+  <g class="node ">
+    <rect x="400" y="196" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="414" y="217" class="box-tag">source.*()</text>
+    <text x="414" y="237" class="box-title">Data Source</text>
+  </g>
+
+  <g class="node ">
+    <rect x="602" y="196" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="616" y="217" class="box-tag">view.*()</text>
+    <text x="616" y="237" class="box-title">Display</text>
+  </g>
+<path d="M 568 225.0 L 602 225.0" class="edge" marker-end="url(#arrow)"/>
+
+  <g class="node ">
+    <rect x="804" y="196" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="818" y="217" class="box-tag">export/access.*()</text>
+    <text x="818" y="237" class="box-title">View & Export</text>
+  </g>
+<path d="M 770 225.0 L 804 225.0" class="edge" marker-end="url(#arrow)"/>
+<path d="M 196 289 L 400 355" class="edge" marker-end="url(#arrow)"/>
+<text x="298" y="314" class="fan-tag" text-anchor="middle">approval.deploy()</text>
+
+  <g class="node ">
+    <rect x="400" y="326" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="414" y="347" class="box-tag">chain.*()</text>
+    <text x="414" y="367" class="box-title">Approval Chain</text>
+  </g>
+
+  <g class="node ">
+    <rect x="602" y="326" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="616" y="347" class="box-tag">approvers.*()</text>
+    <text x="616" y="367" class="box-title">Approvers</text>
+  </g>
+<path d="M 568 355.0 L 602 355.0" class="edge" marker-end="url(#arrow)"/>
+
+  <g class="node ">
+    <rect x="804" y="326" width="168" height="58" rx="10" class="box-rect"/>
+    <text x="818" y="347" class="box-tag">escalate.*()</text>
+    <text x="818" y="367" class="box-title">Escalation</text>
+  </g>
+<path d="M 770 355.0 L 804 355.0" class="edge" marker-end="url(#arrow)"/>
+<path d="M 196 328 L 400 485" class="edge" marker-end="url(#arrow)"/>
+<text x="298" y="399" class="fan-tag" text-anchor="middle">app.assemble()</text>
+
+  <g class="node ">
+    <rect x="400" y="456" width="572" height="58" rx="10" class="box-rect"/>
+    <text x="414" y="477" class="box-tag">9 reusable blocks</text>
+    <text x="414" y="497" class="box-title">Building Blocks — pick any of 9</text>
+  </g>
+<path d="M 770 95 L 980 261" class="edge edge-converge" marker-end="url(#arrow)"/>
+<path d="M 972 225 L 980 261" class="edge edge-converge" marker-end="url(#arrow)"/>
+<path d="M 972 355 L 980 261" class="edge edge-converge" marker-end="url(#arrow)"/>
+<path d="M 972 485 L 980 261" class="edge edge-converge" marker-end="url(#arrow)"/>
+
+  <g class="node ">
+    <rect x="980" y="229.0" width="190" height="64" rx="10" class="box-rect"/>
+    <text x="994" y="250.0" class="box-tag">access.*() + expiry.*()</text>
+    <text x="994" y="270.0" class="box-title">Access & Governance</text>
+  </g>
+<path d="M 1170 261 L 1214 261" class="edge" marker-end="url(#arrow)"/>
+
+  <g class="node ">
+    <rect x="1214" y="229.0" width="190" height="64" rx="10" class="box-rect"/>
+    <text x="1228" y="250.0" class="box-tag">jump to any step</text>
+    <text x="1228" y="270.0" class="box-title">Review & Validate</text>
+  </g>
+<path d="M 1404 261 L 1448 261" class="edge" marker-end="url(#arrow)"/>
+
+  <g class="node box-gold">
+    <rect x="1448" y="229.0" width="180" height="64" rx="10" class="box-rect"/>
+    <text x="1462" y="250.0" class="box-tag">staging.deploy()</text>
+    <text x="1462" y="270.0" class="box-title">Publish to Staging</text>
+  </g>
+
+  <path d="M 1236 229.0 C 1236 155.0, 1382 155.0, 1382 229.0"
+        class="edge edge-loop" marker-end="url(#arrow)"/>
+  <text x="1309.0" y="145.0" class="loop-label" text-anchor="middle">Edit jumps to any step, answer it, lands back here</text>
+
+<path d="M 1538.0 293.0 L 1538.0 353.0" class="edge edge-ghost" marker-end="url(#arrow-ghost)" stroke-dasharray="5 5"/>
+
+  <g class="node box-ghost">
+    <rect x="1448" y="353.0" width="180" height="64" rx="10" class="box-rect"/>
+    <text x="1462" y="374.0" class="box-tag">after test sign-off</text>
+    <text x="1462" y="394.0" class="box-title">Promote to Production</text>
+  </g>
+</svg>
+    </div>
+    <figcaption><strong>How to read it:</strong> the diamond is the wizard's only fork — everything after it is shaped by that one answer. Each lane's boxes are next-logical questions specific to that path (a workflow asks what triggers it; a form asks where its data comes from). All four converge on <strong>Access &amp; Governance</strong>, then <strong>Review &amp; Validate</strong>, where Edit can jump back to any earlier answer and returns straight to Review — never forward through the rest of the path again. <strong>Publish to Staging</strong> is the wizard's last step; <strong>Promote to Production</strong> sits outside it, gated behind test sign-off.</figcaption>
+  </figure>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-swatch solid"></span>Next step</span>
+    <span class="legend-item"><span class="legend-swatch loop"></span>Edit &amp; return to Review</span>
+    <span class="legend-item"><span class="legend-swatch gold"></span>Publish action</span>
+    <span class="legend-item"><span class="legend-swatch ghost"></span>Gated / not yet available</span>
+  </div>
+</div>
