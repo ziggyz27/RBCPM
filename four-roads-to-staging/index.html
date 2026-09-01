@@ -70,6 +70,7 @@
   .legend-swatch.loop { background: var(--info); }
   .legend-swatch.ghost { background: var(--text-dim); background-image: repeating-linear-gradient(90deg, var(--text-dim) 0 4px, transparent 4px 8px); background-color: transparent; }
   .legend-swatch.gold { background: var(--gold); }
+  .legend-swatch.dash-info { background-image: repeating-linear-gradient(90deg, var(--info) 0 4px, transparent 4px 8px); background-color: transparent; }
 
   /* ---------- SVG node/edge styling ---------- */
   .box-rect { fill: var(--surface-card); stroke: var(--line-strong); stroke-width: 1.5; }
@@ -94,6 +95,12 @@
   .arrowhead-ghost { fill: var(--text-dim); }
   .fan-tag { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); }
   .loop-label { font-family: var(--font-ui); font-size: 11px; fill: var(--info); font-weight: 600; }
+
+  .box-info .box-rect { fill: var(--info-soft); stroke: var(--info); stroke-dasharray: 4 4; }
+  .box-info .box-tag { fill: var(--info); }
+  .edge-escape { stroke: var(--info); stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+  .arrowhead-info { fill: var(--info); }
+  .hatch-label { font-family: var(--font-ui); font-size: 10.5px; fill: var(--info); font-weight: 500; }
 </style>
 
 <div class="sheet">
@@ -110,6 +117,9 @@
     </marker>
     <marker id="arrow-ghost" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" class="arrowhead-ghost"/>
+    </marker>
+    <marker id="arrow-info" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrowhead-info"/>
     </marker>
   </defs>
 
@@ -201,6 +211,19 @@
     <text x="994" y="250.0" class="box-tag">access.*() + expiry.*()</text>
     <text x="994" y="270.0" class="box-title">Access & Governance</text>
   </g>
+
+  <path d="M 1014 293.0 C 1014 333.0, 1014 333.0, 1014 363.0
+           M 1136 417.0 C 1136 447.0, 1136 323.0, 1136 293.0"
+        class="edge edge-escape" marker-end="url(#arrow-info)"/>
+
+
+  <g class="node box-info">
+    <rect x="980" y="363.0" width="190" height="54" rx="10" class="box-rect"/>
+    <text x="994" y="384.0" class="box-tag">dep.request()</text>
+    <text x="994" y="404.0" class="box-title">Request It Inline</text>
+  </g>
+<text x="1075.0" y="439.0" class="hatch-label" text-anchor="middle">Missing something (e.g. a role)?</text>
+<text x="1075.0" y="455.0" class="hatch-label" text-anchor="middle">Auto-saved — resume right here</text>
 <path d="M 1170 261 L 1214 261" class="edge" marker-end="url(#arrow)"/>
 
   <g class="node ">
@@ -229,12 +252,13 @@
   </g>
 </svg>
     </div>
-    <figcaption><strong>How to read it:</strong> the diamond is the wizard's only fork — everything after it is shaped by that one answer. Each lane's boxes are next-logical questions specific to that path (a workflow asks what triggers it; a form asks where its data comes from). All four converge on <strong>Access &amp; Governance</strong>, then <strong>Review &amp; Validate</strong>, where Edit can jump back to any earlier answer and returns straight to Review — never forward through the rest of the path again. <strong>Publish to Staging</strong> is the wizard's last step; <strong>Promote to Production</strong> sits outside it, gated behind test sign-off.</figcaption>
+    <figcaption><strong>How to read it:</strong> the diamond is the wizard's only fork — everything after it is shaped by that one answer. Each lane's boxes are next-logical questions specific to that path (a workflow asks what triggers it; a form asks where its data comes from). All four converge on <strong>Access &amp; Governance</strong>, where a missing dependency — a role that doesn't exist yet, say — can be requested inline instead of forcing the requester out to a different form: progress auto-saves and they pick up exactly where they left off. From there it's <strong>Review &amp; Validate</strong>, where Edit can jump back to any earlier answer and returns straight to Review — never forward through the rest of the path again — then <strong>Publish to Staging</strong>, the wizard's last step. <strong>Promote to Production</strong> sits outside it, gated behind test sign-off.</figcaption>
   </figure>
 
   <div class="legend">
     <span class="legend-item"><span class="legend-swatch solid"></span>Next step</span>
     <span class="legend-item"><span class="legend-swatch loop"></span>Edit &amp; return to Review</span>
+    <span class="legend-item" style="--dash-color: var(--info);"><span class="legend-swatch dash-info"></span>Request a missing dependency inline</span>
     <span class="legend-item"><span class="legend-swatch gold"></span>Publish action</span>
     <span class="legend-item"><span class="legend-swatch ghost"></span>Gated / not yet available</span>
   </div>
