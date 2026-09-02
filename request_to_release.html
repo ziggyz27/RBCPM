@@ -1,0 +1,926 @@
+<title>Request to Release</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ink: #1E2761;
+    --ink-deep: #12163A;
+    --surface: #F4F6FC;
+    --surface-card: #FFFFFF;
+    --surface-sunken: #ECF0FA;
+    --line: #D7DEEE;
+    --line-strong: #B9C4E2;
+    --muted: #5C6B9E;
+    --text: #1B2140;
+    --text-dim: #6B7599;
+    --gold: #A47A14;
+    --gold-soft: #F3E7CB;
+    --good: #1B8A5A;
+    --good-soft: #DFF3E9;
+    --info: #2E7FE0;
+    --info-soft: #E3EDFC;
+    --shadow: 0 1px 2px rgba(20, 27, 74, 0.06), 0 12px 32px -16px rgba(20, 27, 74, 0.22);
+    --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #AEC0F2; --ink-deep: #060915; --surface: #0B0F24; --surface-card: #141A38;
+      --surface-sunken: #10152C; --line: #2A3260; --line-strong: #3A4380; --muted: #96A3D6;
+      --text: #E7ECFC; --text-dim: #8D98C7; --gold: #E0B85C; --gold-soft: #3A2E12;
+      --good: #4FC98A; --good-soft: #123424; --info: #6FA4F2; --info-soft: #12244A;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 20px 48px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #AEC0F2; --ink-deep: #060915; --surface: #0B0F24; --surface-card: #141A38;
+    --surface-sunken: #10152C; --line: #2A3260; --line-strong: #3A4380; --muted: #96A3D6;
+    --text: #E7ECFC; --text-dim: #8D98C7; --gold: #E0B85C; --gold-soft: #3A2E12;
+    --good: #4FC98A; --good-soft: #123424; --info: #6FA4F2; --info-soft: #12244A;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 20px 48px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface); color: var(--text); font-family: var(--font-ui);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: clamp(12px, 3vw, 40px);
+  }
+
+  .stage {
+    position: relative;
+    width: min(1600px, 100%); aspect-ratio: 16 / 9.3; background: var(--surface-card);
+    border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  .stage-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+    padding: clamp(16px, 2.4cqw, 28px) clamp(20px, 3cqw, 40px) clamp(10px, 1.4cqw, 16px);
+    border-bottom: 1px solid var(--line); background: var(--surface-card);
+  }
+  .stage-kicker {
+    font-family: var(--font-mono); font-size: clamp(10px, 0.95cqw, 12.5px); letter-spacing: 0.12em;
+    color: var(--gold); font-weight: 500; margin: 0 0 6px;
+  }
+  .stage-title { font-size: clamp(19px, 2.4cqw, 30px); font-weight: 700; color: var(--ink); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+  .stage-sub { font-size: clamp(11.5px, 1cqw, 13.5px); color: var(--text-dim); margin: 6px 0 0; max-width: 62ch; }
+  .start-over-btn {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono);
+    font-size: clamp(10.5px, 0.9cqw, 12px); font-weight: 500; color: var(--ink);
+    background: var(--surface-sunken); border: 1px solid var(--line-strong); border-radius: 999px;
+    padding: 8px 16px; cursor: pointer; flex: none; transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .start-over-btn:hover { background: var(--info-soft); }
+  .start-over-btn:active { transform: scale(0.97); }
+  .start-over-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .start-over-btn svg { width: 13px; height: 13px; }
+
+  .stage-body { flex: 1; display: grid; grid-template-columns: minmax(190px, 25%) 1fr; min-height: 0; container-type: inline-size; }
+
+  /* ---------- rail ---------- */
+  .rail { background: var(--surface-sunken); border-right: 1px solid var(--line); padding: clamp(12px, 1.6cqw, 20px) clamp(10px, 1.4cqw, 16px); overflow-y: auto; }
+  .rail-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); margin: 2px 4px 12px; text-transform: uppercase; }
+  .rail-step {
+    display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px; border-radius: 10px;
+    margin-bottom: 3px; cursor: default; transition: background 0.15s ease;
+  }
+  .rail-step.reachable { cursor: pointer; }
+  .rail-step.reachable:hover { background: var(--surface-card); }
+  .rail-step.reachable:focus-visible { outline: 2px solid var(--info); outline-offset: 1px; }
+  .rail-num {
+    flex: none; width: 20px; height: 20px; border-radius: 999px; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; margin-top: 1px;
+    background: var(--surface-card); color: var(--text-dim); border: 1px solid var(--line-strong);
+  }
+  .rail-step.current .rail-num { background: var(--gold); border-color: var(--gold); color: var(--ink-deep); }
+  .rail-step.done .rail-num { background: var(--good); border-color: var(--good); color: #fff; }
+  .rail-step.done .rail-num::after { content: ""; }
+  .rail-label { font-size: clamp(11.5px, 1cqw, 13px); color: var(--text-dim); line-height: 1.3; margin-top: 1px; }
+  .rail-step.current .rail-label { color: var(--ink); font-weight: 600; }
+  .rail-step.done .rail-label { color: var(--text); }
+
+  /* ---------- panel ---------- */
+  .panel { display: flex; flex-direction: column; min-height: 0; }
+  .panel-body { flex: 1; overflow-y: auto; padding: clamp(16px, 2.2cqw, 30px) clamp(20px, 2.8cqw, 38px); }
+  .panel-eyebrow { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--info); text-transform: uppercase; margin: 0 0 6px; }
+  .panel-title { font-size: clamp(16px, 1.7cqw, 21px); font-weight: 700; color: var(--ink); margin: 0 0 4px; text-wrap: balance; }
+  .panel-desc { font-size: clamp(11.5px, 1cqw, 13px); color: var(--text-dim); margin: 0 0 18px; max-width: 66ch; }
+
+  .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .tile {
+    text-align: left; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface-card);
+    padding: 13px 14px; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .tile:hover { border-color: var(--line-strong); }
+  .tile:active { transform: scale(0.99); }
+  .tile:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .tile.selected { border-color: var(--gold); background: var(--gold-soft); }
+  .tile-tag { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+  .tile.selected .tile-tag { color: var(--gold); }
+  .tile-label { font-size: 13.5px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+  .tile-check {
+    width: 15px; height: 15px; border-radius: 999px; border: 1.5px solid var(--line-strong); flex: none;
+    display: inline-flex; align-items: center; justify-content: center; background: var(--surface-card);
+  }
+  .tile.selected .tile-check { background: var(--gold); border-color: var(--gold); }
+  .tile.selected .tile-check svg { display: block; }
+  .tile-check svg { display: none; width: 9px; height: 9px; color: var(--ink-deep); }
+  .tile-desc { font-size: 11.5px; color: var(--text-dim); line-height: 1.4; }
+  .tile.multi .tile-check { border-radius: 5px; }
+
+  .group-block + .group-block { margin-top: 22px; }
+  .group-heading { font-size: 12px; font-weight: 600; color: var(--ink); margin: 0 0 9px; }
+
+  .panel-foot {
+    display: flex; align-items: center; gap: 14px; border-top: 1px solid var(--line);
+    padding: 12px clamp(20px, 2.8cqw, 38px); background: var(--surface-card); flex: none;
+  }
+  .btn {
+    font-family: var(--font-ui); font-size: 12.5px; font-weight: 600; border-radius: 9px; cursor: pointer;
+    padding: 9px 18px; border: 1.5px solid transparent; transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+  .btn-primary { background: var(--ink); color: #fff; margin-left: auto; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-gold { background: var(--gold); color: var(--ink-deep); margin-left: auto; }
+  .btn-gold:hover { opacity: 0.88; }
+  .btn-ghost { background: var(--surface-sunken); color: var(--ink); border-color: var(--line-strong); }
+  .btn-ghost:hover { background: var(--info-soft); }
+  .step-counter { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+
+  .pending-badge {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10.5px;
+    font-weight: 500; color: var(--gold); background: var(--gold-soft); border: 1px solid var(--gold);
+    border-radius: 999px; padding: 7px 13px; flex: none;
+  }
+  .pending-badge svg { width: 11px; height: 11px; }
+  .pending-badge[hidden] { display: none; }
+
+  .role-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .role-chip {
+    display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--line); border-radius: 999px;
+    padding: 7px 13px; font-size: 12.5px; color: var(--text); background: var(--surface-card); cursor: pointer;
+    font-family: var(--font-ui); transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .role-chip:hover { border-color: var(--line-strong); }
+  .role-chip:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .role-chip.selected { border-color: var(--gold); background: var(--gold-soft); }
+  .role-chip.pending { border-color: var(--gold); background: var(--gold-soft); color: var(--gold); cursor: default; font-weight: 500; }
+  .role-chip.add-new { border-style: dashed; color: var(--info); border-color: var(--info); background: var(--info-soft); font-weight: 500; }
+  .role-chip.add-new:hover { opacity: 0.85; }
+  .role-chip svg { width: 11px; height: 11px; flex: none; }
+
+  .dep-form { margin-top: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface-sunken); padding: 14px; max-width: 420px; }
+  .dep-form-title { font-size: 12.5px; font-weight: 600; color: var(--ink); margin: 0 0 3px; }
+  .dep-form-hint { font-size: 11.5px; color: var(--text-dim); margin: 0 0 10px; }
+  .dep-form input, .dep-form textarea {
+    width: 100%; font-family: var(--font-ui); font-size: 12.5px; color: var(--text); background: var(--surface-card);
+    border: 1px solid var(--line-strong); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; resize: vertical; box-sizing: border-box;
+  }
+  .dep-form input:focus, .dep-form textarea:focus { outline: 2px solid var(--info); outline-offset: 1px; }
+  .dep-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .dep-note {
+    display: flex; align-items: flex-start; gap: 8px; background: var(--good-soft); color: var(--good);
+    border: 1px solid var(--good); border-radius: 10px; padding: 9px 13px; font-size: 12px; font-weight: 500; margin-top: 12px; max-width: 480px;
+  }
+  .dep-note svg { width: 13px; height: 13px; flex: none; margin-top: 1px; }
+  .publish-pending-note {
+    display: flex; align-items: flex-start; gap: 8px; background: var(--gold-soft); color: var(--gold);
+    border: 1px solid var(--gold); border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 500;
+    max-width: 46ch; margin-top: 4px; text-align: left;
+  }
+  .publish-pending-note svg { width: 13px; height: 13px; flex: none; margin-top: 1px; }
+
+  /* ---------- review ---------- */
+  .review-card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface-sunken); padding: 14px 16px; margin-bottom: 10px; }
+  .review-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .review-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+  .edit-btn {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; color: var(--info); background: none;
+    border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .edit-btn:hover { text-decoration: underline; }
+  .edit-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .edit-btn svg { width: 11px; height: 11px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--surface-card); border: 1px solid var(--line-strong);
+    border-radius: 999px; padding: 5px 11px; font-size: 12px; color: var(--text);
+  }
+  .chip .tile-tag { font-size: 10px; }
+  .chip svg { width: 11px; height: 11px; flex: none; }
+  .ready-banner {
+    display: flex; align-items: center; gap: 10px; background: var(--good-soft); border: 1px solid var(--good);
+    color: var(--good); border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 600; margin-bottom: 16px;
+  }
+  .ready-banner svg { width: 15px; height: 15px; flex: none; }
+
+  /* ---------- publish ---------- */
+  .publish-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 260px; gap: 14px; }
+  .spinner { width: 34px; height: 34px; border-radius: 999px; border: 3px solid var(--line); border-top-color: var(--gold); animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .publish-status { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+  .publish-check {
+    width: 52px; height: 52px; border-radius: 999px; background: var(--good-soft); border: 2px solid var(--good);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .publish-check svg { width: 24px; height: 24px; color: var(--good); }
+  .publish-title { font-size: clamp(16px, 1.8cqw, 22px); font-weight: 700; color: var(--ink); margin: 0; }
+  .staging-badge {
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted); background: var(--surface-sunken);
+    border: 1px solid var(--line-strong); border-radius: 999px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .staging-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--good); flex: none; }
+  .publish-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .promote-note { font-size: 11px; color: var(--text-dim); max-width: 40ch; }
+
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 0.01ms; } }
+
+  /* ---------- in-context feedback ---------- */
+  .feedback-trigger-btn {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono);
+    font-size: clamp(10.5px, 0.9cqw, 12px); font-weight: 500; color: var(--info);
+    background: var(--info-soft); border: 1px solid var(--info); border-radius: 999px;
+    padding: 8px 16px; cursor: pointer; flex: none; transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .feedback-trigger-btn:hover { opacity: 0.85; }
+  .feedback-trigger-btn:active { transform: scale(0.97); }
+  .feedback-trigger-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .feedback-trigger-btn svg { width: 13px; height: 13px; }
+
+  .feedback-overlay {
+    position: absolute; inset: 0; z-index: 40; padding: 20px;
+    background: color-mix(in srgb, var(--ink-deep) 55%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+  }
+  .feedback-overlay.show { opacity: 1; pointer-events: auto; }
+  .feedback-modal {
+    width: min(420px, 100%); background: var(--surface-card); border: 1px solid var(--line);
+    border-radius: 14px; box-shadow: var(--shadow); padding: 18px 20px 20px;
+    transform: translateY(8px); transition: transform 0.2s ease;
+  }
+  .feedback-overlay.show .feedback-modal { transform: none; }
+  .feedback-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2px; }
+  .feedback-modal-title { font-size: 15.5px; font-weight: 700; color: var(--ink); margin: 0; }
+  .feedback-close-btn {
+    width: 26px; height: 26px; border-radius: 8px; border: none; background: none; color: var(--text-dim); flex: none;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .feedback-close-btn:hover { background: var(--surface-sunken); color: var(--text); }
+  .feedback-close-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+  .feedback-close-btn svg { width: 15px; height: 15px; }
+  .feedback-modal-desc { font-size: 12px; color: var(--text-dim); margin: 2px 0 12px; line-height: 1.4; }
+  .feedback-textarea {
+    display: block; width: 100%; font-family: var(--font-ui); font-size: 12.5px; color: var(--text);
+    background: var(--surface-sunken); border: 1px solid var(--line-strong); border-radius: 10px;
+    padding: 10px 12px; resize: vertical; min-height: 112px; line-height: 1.5; box-sizing: border-box;
+  }
+  .feedback-textarea:focus { outline: 2px solid var(--info); outline-offset: 1px; }
+  .feedback-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .feedback-confirm { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 8px 4px 2px; }
+  .feedback-confirm-icon {
+    width: 44px; height: 44px; border-radius: 999px; background: var(--good-soft); border: 2px solid var(--good);
+    display: flex; align-items: center; justify-content: center; color: var(--good);
+  }
+  .feedback-confirm-icon svg { width: 20px; height: 20px; }
+  .feedback-confirm-title { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0; }
+  .feedback-confirm-desc { font-size: 12px; color: var(--text-dim); margin: 0; max-width: 32ch; }
+</style>
+
+<div class="stage" id="stage">
+  <div class="stage-head">
+    <div>
+      <p class="stage-kicker">SELF-SERVE PLATFORM &middot; REQUEST WIZARD</p>
+      <h1 class="stage-title">Request to Release</h1>
+      <p class="stage-sub">Pick what you're deploying, answer a few next-logical questions, review everything in one place, then publish to staging for testing.</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; flex:none;">
+      <span class="pending-badge" id="pendingBadge" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span id="pendingBadgeText"></span>
+      </span>
+      <button class="feedback-trigger-btn" id="feedbackTriggerBtn" type="button" aria-label="Give feedback on this step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span id="feedbackTriggerLabel">Feedback</span>
+      </button>
+      <button class="start-over-btn" id="startOverBtn" type="button" aria-label="Start over">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+        Start Over
+      </button>
+    </div>
+  </div>
+  <div class="stage-body">
+    <nav class="rail" id="rail" aria-label="Wizard steps"></nav>
+    <div class="panel">
+      <div class="panel-body" id="panelBody"></div>
+      <div class="panel-foot" id="panelFoot"></div>
+    </div>
+  </div>
+
+  <div class="feedback-overlay" id="feedbackOverlay">
+    <div class="feedback-modal" id="feedbackModal" role="dialog" aria-label="Send feedback" aria-modal="true">
+      <div class="feedback-modal-head">
+        <h3 class="feedback-modal-title">Send feedback</h3>
+        <button class="feedback-close-btn" id="feedbackCloseBtn" type="button" aria-label="Close feedback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div id="feedbackModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TYPE_OPTIONS = [
+    { id: "workflow", tag: "workflow.deploy()", label: "Deploy a Workflow", desc: "Automate a process end-to-end — approvals, notifications, record updates — from a reusable starter kit." },
+    { id: "form", tag: "form.deploy()", label: "Deploy a Form / Catalog Item", desc: "Stand up a self-serve request form backed by live data, with built-in display and export controls." },
+    { id: "approval", tag: "approval.deploy()", label: "Deploy an Approval Process", desc: "Configure a routing chain — single approver or multi-layer — with escalation rules." },
+    { id: "app", tag: "app.assemble()", label: "Build a Self-Serve App", desc: "Combine building blocks — data, display, approvals, access controls — into one governed app." }
+  ];
+
+  var SEQUENCES = {
+    workflow: ["type", "trigger", "action", "governance", "review", "publish"],
+    form: ["type", "source", "display", "actions", "governance", "review", "publish"],
+    approval: ["type", "chain", "approvers", "escalation", "governance", "review", "publish"],
+    app: ["type", "blocks", "governance", "review", "publish"]
+  };
+
+  var STEP_LABELS = {
+    type: "Choose what to deploy", trigger: "Trigger", action: "Action", source: "Data source",
+    display: "Display", actions: "View & export controls", chain: "Approval chain", approvers: "Approvers",
+    escalation: "Escalation", blocks: "Building blocks", governance: "Access & governance",
+    review: "Review & validate", publish: "Publish to staging"
+  };
+
+  var STEP_DESC = {
+    trigger: "What starts this workflow?",
+    action: "What should it do once triggered?",
+    source: "Where does the form's data come from?",
+    display: "How should records be shown?",
+    actions: "Choose every control that applies — you can select more than one.",
+    chain: "How many people need to sign off?",
+    approvers: "Who fills the approver seats?",
+    escalation: "What happens if an approver goes quiet?",
+    blocks: "Pick every capability this app needs — you can select more than one.",
+    governance: "Set who can use this and whether access expires."
+  };
+
+  var STEP_OPTIONS = {
+    trigger: [
+      { id: "scheduled", tag: "trigger.scheduled()", label: "Scheduled", desc: "Runs on a recurring schedule you set." },
+      { id: "event", tag: "trigger.event()", label: "Record Event", desc: "Fires when a record is created, updated, or matches a condition." },
+      { id: "manual", tag: "trigger.manual()", label: "Manual Request", desc: "Started on demand from the catalog or portal." }
+    ],
+    action: [
+      { id: "notify", tag: "action.notify()", label: "Notify a Team", desc: "Send an in-app or email alert to the right group." },
+      { id: "update", tag: "action.update()", label: "Update a Record", desc: "Change field values or state on the triggering record." },
+      { id: "approve", tag: "action.approve()", label: "Start an Approval", desc: "Route the record through an approval chain before continuing." },
+      { id: "integrate", tag: "action.integrate()", label: "Call an Integration", desc: "Push or pull data through a connected API." }
+    ],
+    source: [
+      { id: "cmdb", tag: "source.cmdb()", label: "CMDB / Internal Table", desc: "Pull live records from an existing ServiceNow table." },
+      { id: "custom", tag: "source.custom()", label: "New Custom Table", desc: "Define a fresh data structure for this form." },
+      { id: "external", tag: "source.external()", label: "External API", desc: "Connect to a vendor or partner system." }
+    ],
+    display: [
+      { id: "table", tag: "view.table()", label: "Table View", desc: "Sortable, filterable rows — best for lists of records." },
+      { id: "card", tag: "view.card()", label: "Card View", desc: "Visual cards — best for browsing a catalog." },
+      { id: "formonly", tag: "view.form()", label: "Form Only", desc: "A single submission form, no browsing view." }
+    ],
+    actions: [
+      { id: "csv", tag: "export.csv()", label: "CSV Export", desc: "Plain data export for spreadsheets." },
+      { id: "xlsx", tag: "export.xlsx()", label: "XLSX Export", desc: "Formatted workbook export." },
+      { id: "pdf", tag: "export.pdf()", label: "PDF Export (guarded)", desc: "Read-only export, gated by role." },
+      { id: "print", tag: "view.print()", label: "Print Allowed", desc: "Records can be printed from the view." },
+      { id: "viewonly", tag: "access.viewonly()", label: "View-Only Mode", desc: "Some users can see but not edit or export." }
+    ],
+    chain: [
+      { id: "single", tag: "chain.single()", label: "Single Approver", desc: "One person signs off before it proceeds." },
+      { id: "multi", tag: "chain.multi()", label: "Multi-Layer", desc: "Manager → Compliance → Finance, matching your governance model." },
+      { id: "conditional", tag: "chain.conditional()", label: "Conditional Routing", desc: "Approver depends on amount, risk, or record type." }
+    ],
+    approvers: [
+      { id: "role", tag: "approvers.role()", label: "Role-Based", desc: "Routes to whoever holds the role today — no manual upkeep." },
+      { id: "named", tag: "approvers.named()", label: "Named Individuals", desc: "You pick specific people for this chain." },
+      { id: "hierarchy", tag: "approvers.hierarchy()", label: "Manager Hierarchy", desc: "Follows the requester's reporting line automatically." }
+    ],
+    escalation: [
+      { id: "auto", tag: "escalate.auto()", label: "Auto-Escalate", desc: "Bumps to the next approver if no action in 3 days." },
+      { id: "remind", tag: "escalate.remind()", label: "Reminder Only", desc: "Nudges the approver but doesn't reassign." },
+      { id: "none", tag: "escalate.none()", label: "No Escalation", desc: "Waits indefinitely for a response." }
+    ],
+    blocks: [
+      { id: "b_auth", tag: "auth.mfa()", label: "Authentication + MFA", desc: "Gates the app before any data loads." },
+      { id: "b_source", tag: "source.connect()", label: "Data Source", desc: "Connects to live records." },
+      { id: "b_display", tag: "view.table()", label: "Display Template", desc: "Renders data as a filterable table." },
+      { id: "b_export", tag: "export.buttons()", label: "Download / Export", desc: "CSV, XLSX, or PDF export buttons." },
+      { id: "b_notify", tag: "notify.toast()", label: "In-App Messages", desc: "Confirms actions as they happen." },
+      { id: "b_approve", tag: "approve.chain()", label: "Multi-Layer Approval", desc: "Routes for sign-off before completing." },
+      { id: "b_guard", tag: "access.guard()", label: "View / Print / Export Rules", desc: "Governs which formats are allowed." },
+      { id: "b_expiry", tag: "access.expiry()", label: "Time-Bound Access", desc: "Access auto-revokes after a set period." },
+      { id: "b_flow", tag: "flow.trigger()", label: "Workflow Template", desc: "Kicks off a downstream automation." }
+    ]
+  };
+
+  var GOV_ACCESS = [
+    { id: "domain", tag: "access.domain()", label: "Everyone in Domain", desc: "Open to anyone in this product area." },
+    { id: "role", tag: "access.role()", label: "Specific Role", desc: "Restricted to one or more defined roles." },
+    { id: "group", tag: "access.group()", label: "Named Group", desc: "Restricted to a specific group or team." }
+  ];
+  var GOV_EXPIRY = [
+    { id: "yes14", tag: "expiry.days(14)", label: "Time-Bound — 14 Days", desc: "Access auto-revokes after 14 days." },
+    { id: "standing", tag: "expiry.none()", label: "Standing Access", desc: "No automatic expiry." }
+  ];
+  var EXISTING_ROLES = [
+    { id: "compliance", label: "Compliance Officer" },
+    { id: "finance", label: "Finance Approver" },
+    { id: "itmgr", label: "IT Manager" },
+    { id: "domainpm", label: "Domain PM" }
+  ];
+
+  function initialState() {
+    return {
+      type: null, committedType: null, answers: {}, current: "type", maxReachedIndex: 0, returnTo: null,
+      publishing: false, published: false, pendingDependencies: [], govRoleFormOpen: false,
+      feedbackOpen: false, feedbackJustSent: false, feedbackSent: 0, feedbackLog: []
+    };
+  }
+  var state = initialState();
+
+  var els = {
+    rail: document.getElementById("rail"),
+    panelBody: document.getElementById("panelBody"),
+    panelFoot: document.getElementById("panelFoot"),
+    startOverBtn: document.getElementById("startOverBtn")
+  };
+
+  function sequence() { return state.type ? SEQUENCES[state.type] : ["type"]; }
+  function stepIndex(id) { return sequence().indexOf(id); }
+
+  function isValid(stepId) {
+    if (stepId === "type") return !!state.type;
+    if (stepId === "governance") {
+      var g = state.answers.governance;
+      return !!(g && g.access && g.expiry);
+    }
+    if (stepId === "review" || stepId === "publish") return true;
+    var opts = STEP_OPTIONS[stepId];
+    var ans = state.answers[stepId];
+    var isMulti = stepId === "actions" || stepId === "blocks";
+    if (isMulti) return Array.isArray(ans) && ans.length > 0;
+    return !!ans;
+  }
+
+  function findOption(list, id) {
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) return list[i]; }
+    return null;
+  }
+
+  function checkIcon() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  }
+
+  function renderRail() {
+    var seq = sequence();
+    var html = '<p class="rail-eyebrow">' + seq.length + '-Step Path</p>';
+    seq.forEach(function (id, i) {
+      var status = "upcoming";
+      if (id === state.current) status = "current";
+      else if (i < state.maxReachedIndex || (id === "publish" && state.published) || (i <= state.maxReachedIndex && id !== state.current)) status = "done";
+      if (i > state.maxReachedIndex && id !== state.current) status = "upcoming";
+      var reachable = i <= state.maxReachedIndex;
+      var cls = "rail-step " + status + (reachable ? " reachable" : "");
+      html += '<div class="' + cls + '" data-step="' + id + '" ' + (reachable ? 'role="button" tabindex="0"' : "") +
+        ' aria-current="' + (id === state.current ? "step" : "false") + '">' +
+        '<span class="rail-num">' + (status === "done" ? checkIcon() : (i + 1)) + '</span>' +
+        '<span class="rail-label">' + STEP_LABELS[id] + '</span></div>';
+    });
+    els.rail.innerHTML = html;
+    els.rail.querySelectorAll(".rail-step.reachable").forEach(function (node) {
+      node.addEventListener("click", function () { goTo(node.getAttribute("data-step")); });
+      node.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goTo(node.getAttribute("data-step")); } });
+    });
+  }
+
+  function tileHtml(opt, selected, multi) {
+    return '<button class="tile' + (multi ? " multi" : "") + (selected ? " selected" : "") + '" type="button" data-opt="' + opt.id + '" role="' + (multi ? "checkbox" : "radio") + '" aria-checked="' + selected + '">' +
+      '<span class="tile-tag">' + opt.tag + '</span>' +
+      '<span class="tile-label"><span class="tile-check">' + checkIcon() + '</span>' + opt.label + '</span>' +
+      '<span class="tile-desc">' + opt.desc + '</span></button>';
+  }
+
+  function renderPanel() {
+    var id = state.current;
+    var body = "";
+    if (id === "type") {
+      body += '<p class="panel-eyebrow">Step 1</p><h2 class="panel-title">What are you deploying?</h2>' +
+        '<p class="panel-desc">Choose a starting point — the questions that follow adapt to your answer.</p>' +
+        '<div class="tile-grid">' + TYPE_OPTIONS.map(function (o) { return tileHtml(o, state.type === o.id, false); }).join("") + '</div>';
+    } else if (id === "governance") {
+      var g = state.answers.governance || {};
+      body += '<p class="panel-eyebrow">Step ' + (stepIndex(id) + 1) + ' of ' + sequence().length + '</p>' +
+        '<h2 class="panel-title">' + STEP_LABELS[id] + '</h2><p class="panel-desc">' + STEP_DESC[id] + '</p>' +
+        '<div class="group-block"><p class="group-heading">Who can access it</p><div class="tile-grid">' +
+        GOV_ACCESS.map(function (o) { return tileHtml(o, g.access === o.id, false); }).join("") + '</div>' +
+        (g.access === "role" ? roleSubPickerHtml(g) : "") + '</div>' +
+        '<div class="group-block"><p class="group-heading">Access window</p><div class="tile-grid">' +
+        GOV_EXPIRY.map(function (o) { return tileHtml(o, g.expiry === o.id, false); }).join("") + '</div></div>';
+    } else if (id === "review") {
+      body += '<p class="panel-eyebrow">Step ' + (stepIndex(id) + 1) + ' of ' + sequence().length + '</p>' +
+        '<h2 class="panel-title">Review &amp; validate</h2><p class="panel-desc">Everything below is ready to publish. Use Edit to jump back and change anything — you’ll land right back here.</p>' +
+        '<div class="ready-banner">' + checkIcon() + 'All required choices are made — ready to publish to staging.</div>';
+      sequence().filter(function (s) { return s !== "review" && s !== "publish"; }).forEach(function (s) {
+        body += reviewCard(s);
+      });
+    } else if (id === "publish") {
+      if (state.published) {
+        var pendingCount = state.pendingDependencies.length;
+        body += '<div class="publish-wrap"><div class="publish-check">' + checkIcon() + '</div>' +
+          '<h2 class="publish-title">Published to staging</h2>' +
+          '<div class="staging-badge"><span class="staging-dot"></span>rbc-staging.service-now.com/sp?id=' + stagingId() + '</div>' +
+          '<p class="promote-note">Deployed to Staging · awaiting test sign-off before it can move to Production.</p>' +
+          (pendingCount ? '<div class="publish-pending-note">' + pendingIcon() + '<span>Heads up — this references ' + pendingCount + ' pending item' + (pendingCount > 1 ? "s" : "") + ' (' + state.pendingDependencies.map(function (d) { return d.label; }).join(", ") + '). It’ll activate fully once provisioned; nothing else to do here.</span></div>' : "") +
+          '<div class="publish-actions"><button class="btn btn-ghost" type="button" id="promoteBtn" disabled>Promote to Production</button>' +
+          '<button class="btn btn-primary" type="button" id="buildAnotherBtn">Build Another</button></div></div>';
+      } else {
+        body += '<div class="publish-wrap"><div class="spinner"></div><p class="publish-status">Publishing to staging environment…</p></div>';
+      }
+    } else {
+      var opts = STEP_OPTIONS[id];
+      var isMulti = id === "actions" || id === "blocks";
+      var ans = state.answers[id];
+      body += '<p class="panel-eyebrow">Step ' + (stepIndex(id) + 1) + ' of ' + sequence().length + '</p>' +
+        '<h2 class="panel-title">' + STEP_LABELS[id] + '</h2><p class="panel-desc">' + STEP_DESC[id] + '</p>' +
+        '<div class="tile-grid">' + opts.map(function (o) {
+          var selected = isMulti ? (Array.isArray(ans) && ans.indexOf(o.id) > -1) : ans === o.id;
+          return tileHtml(o, selected, isMulti);
+        }).join("") + '</div>';
+    }
+    els.panelBody.innerHTML = body;
+    els.panelBody.scrollTop = 0;
+    wirePanelEvents();
+    renderFoot();
+  }
+
+  function pendingIcon() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+  }
+  function plusIcon() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
+  }
+  function findPendingDep(id) {
+    for (var i = 0; i < state.pendingDependencies.length; i++) { if (state.pendingDependencies[i].id === id) return state.pendingDependencies[i]; }
+    return null;
+  }
+  function roleLabel(id) {
+    var r = findOption(EXISTING_ROLES, id);
+    if (r) return r.label;
+    var p = findPendingDep(id);
+    return p ? p.label : id;
+  }
+  function roleSubPickerHtml(g) {
+    var chosen = g.roleIds || [];
+    var chips = EXISTING_ROLES.map(function (r) {
+      return '<button class="role-chip' + (chosen.indexOf(r.id) > -1 ? " selected" : "") + '" type="button" data-role-toggle="' + r.id + '">' + r.label + '</button>';
+    }).join("");
+    var pendingChips = state.pendingDependencies.filter(function (d) { return d.kind === "role"; }).map(function (d) {
+      return '<button class="role-chip pending" type="button" disabled>' + pendingIcon() + d.label + ' &middot; pending</button>';
+    }).join("");
+    var addChip = '<button class="role-chip add-new" type="button" id="addRoleBtn">' + plusIcon() + 'Request a new role</button>';
+    var formHtml = state.govRoleFormOpen ? (
+      '<div class="dep-form">' +
+      '<p class="dep-form-title">Request a new role</p>' +
+      '<p class="dep-form-hint">This creates a request for a role that doesn’t exist yet — you don’t have to leave the wizard to do it.</p>' +
+      '<input type="text" id="depRoleName" placeholder="Role name (e.g. Identity Analyst)" />' +
+      '<textarea id="depRoleReason" rows="2" placeholder="Why do you need it? (optional)"></textarea>' +
+      '<div class="dep-form-actions"><button class="btn btn-ghost" type="button" id="cancelDepBtn">Cancel</button>' +
+      '<button class="btn btn-primary" type="button" id="submitDepBtn" style="margin-left:0;">Submit Request</button></div>' +
+      '</div>'
+    ) : "";
+    var noteHtml = (!state.govRoleFormOpen && state.pendingDependencies.some(function (d) { return d.kind === "role"; }))
+      ? '<div class="dep-note">' + checkIcon() + '<span>Progress saved — keep going. We’ll attach this role automatically once it’s provisioned, or you can pick up this exact request later from the saved link.</span></div>'
+      : "";
+    return '<div class="role-chip-row">' + chips + pendingChips + addChip + '</div>' + formHtml + noteHtml;
+  }
+
+  function stagingId() {
+    if (!state._sid) { state._sid = (state.type || "req") + "_" + Math.floor(1000 + Math.random() * 8999); }
+    return state._sid;
+  }
+
+  function reviewCard(stepId) {
+    var label, chips = "";
+    if (stepId === "type") {
+      label = "Deployment type";
+      var t = findOption(TYPE_OPTIONS, state.type);
+      chips = chipHtml(t);
+    } else if (stepId === "governance") {
+      label = "Access & governance";
+      var g = state.answers.governance || {};
+      chips = chipHtml(findOption(GOV_ACCESS, g.access)) + chipHtml(findOption(GOV_EXPIRY, g.expiry));
+      if (g.access === "role" && (g.roleIds || []).length) {
+        chips += g.roleIds.map(function (id) {
+          var pending = findPendingDep(id);
+          return pending ? '<span class="chip" style="border-color:var(--gold); color:var(--gold);">' + pendingIcon() + '&nbsp;' + roleLabel(id) + ' &middot; pending</span>' : '<span class="chip">' + roleLabel(id) + '</span>';
+        }).join("");
+      }
+    } else {
+      label = STEP_LABELS[stepId];
+      var isMulti = stepId === "actions" || stepId === "blocks";
+      var ans = state.answers[stepId];
+      if (isMulti && Array.isArray(ans)) {
+        chips = ans.map(function (id) { return chipHtml(findOption(STEP_OPTIONS[stepId], id)); }).join("");
+      } else {
+        chips = chipHtml(findOption(STEP_OPTIONS[stepId], ans));
+      }
+    }
+    return '<div class="review-card"><div class="review-card-head"><span class="review-card-label">' + label + '</span>' +
+      '<button class="edit-btn" type="button" data-edit="' + stepId + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>Edit</button></div>' +
+      '<div class="chip-row">' + chips + '</div></div>';
+  }
+
+  function chipHtml(opt) {
+    if (!opt) return "";
+    return '<span class="chip"><span class="tile-tag">' + opt.tag + '</span>' + opt.label + '</span>';
+  }
+
+  function renderFoot() {
+    var id = state.current;
+    var html = "";
+    if (id === "publish") {
+      els.panelFoot.style.display = "none";
+      els.panelFoot.innerHTML = "";
+      return;
+    }
+    els.panelFoot.style.display = "flex";
+    var idx = stepIndex(id);
+    var backDisabled = idx <= 0;
+    html += '<button class="btn btn-ghost" type="button" id="backBtn"' + (backDisabled ? " disabled" : "") + '>Back</button>';
+    html += '<span class="step-counter">Step ' + (idx + 1) + ' of ' + sequence().length + '</span>';
+    if (id === "review") {
+      html += '<button class="btn btn-gold" type="button" id="continueBtn">Publish to Staging →</button>';
+    } else {
+      html += '<button class="btn btn-primary" type="button" id="continueBtn"' + (isValid(id) ? "" : " disabled") + '>Continue</button>';
+    }
+    els.panelFoot.innerHTML = html;
+    var backBtn = document.getElementById("backBtn");
+    if (backBtn) backBtn.addEventListener("click", goBack);
+    var contBtn = document.getElementById("continueBtn");
+    if (contBtn) contBtn.addEventListener("click", id === "review" ? doPublish : goNext);
+  }
+
+  function wirePanelEvents() {
+    els.panelBody.querySelectorAll(".tile").forEach(function (btn) {
+      btn.addEventListener("click", function () { handleTileClick(state.current, btn.getAttribute("data-opt"), btn); });
+    });
+    els.panelBody.querySelectorAll("[data-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () { state.returnTo = "review"; goTo(btn.getAttribute("data-edit")); });
+    });
+    var promoteBtn = document.getElementById("promoteBtn");
+    var buildAnotherBtn = document.getElementById("buildAnotherBtn");
+    if (buildAnotherBtn) buildAnotherBtn.addEventListener("click", startOver);
+
+    els.panelBody.querySelectorAll("[data-role-toggle]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-role-toggle");
+        var g = state.answers.governance || (state.answers.governance = {});
+        g.roleIds = g.roleIds || [];
+        var pos = g.roleIds.indexOf(id);
+        if (pos > -1) g.roleIds.splice(pos, 1); else g.roleIds.push(id);
+        renderPanel(); renderRail();
+      });
+    });
+    var addRoleBtn = document.getElementById("addRoleBtn");
+    if (addRoleBtn) addRoleBtn.addEventListener("click", function () { state.govRoleFormOpen = true; renderPanel(); });
+    var cancelDepBtn = document.getElementById("cancelDepBtn");
+    if (cancelDepBtn) cancelDepBtn.addEventListener("click", function () { state.govRoleFormOpen = false; renderPanel(); });
+    var submitDepBtn = document.getElementById("submitDepBtn");
+    if (submitDepBtn) submitDepBtn.addEventListener("click", function () {
+      var nameInput = document.getElementById("depRoleName");
+      var name = (nameInput.value || "").trim();
+      if (!name) { nameInput.focus(); return; }
+      var dep = { id: "dep_" + Date.now(), label: name, kind: "role" };
+      state.pendingDependencies.push(dep);
+      var g = state.answers.governance || (state.answers.governance = {});
+      g.roleIds = g.roleIds || [];
+      g.roleIds.push(dep.id);
+      state.govRoleFormOpen = false;
+      renderPanel(); renderRail(); renderHeaderBadge();
+    });
+  }
+
+  function renderHeaderBadge() {
+    var n = state.pendingDependencies.length;
+    var badge = document.getElementById("pendingBadge");
+    var text = document.getElementById("pendingBadgeText");
+    if (!badge) return;
+    if (n > 0) {
+      text.textContent = n + " pending item" + (n > 1 ? "s" : "");
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
+
+  function handleTileClick(stepId, optId, btnNode) {
+    if (stepId === "type") {
+      state.type = optId;
+    } else if (stepId === "governance") {
+      var group = btnNode.closest(".group-block");
+      var isAccess = group && group.querySelector(".group-heading").textContent.indexOf("access it") > -1;
+      state.answers.governance = state.answers.governance || {};
+      if (isAccess) state.answers.governance.access = optId; else state.answers.governance.expiry = optId;
+    } else if (stepId === "actions" || stepId === "blocks") {
+      var arr = state.answers[stepId] ? state.answers[stepId].slice() : [];
+      var pos = arr.indexOf(optId);
+      if (pos > -1) arr.splice(pos, 1); else arr.push(optId);
+      state.answers[stepId] = arr;
+    } else {
+      state.answers[stepId] = optId;
+    }
+    renderPanel();
+    renderRail();
+  }
+
+  function goNext() {
+    var seq = sequence();
+    var idx = stepIndex(state.current);
+
+    if (state.current === "type") {
+      var changed = state.committedType && state.committedType !== state.type;
+      if (changed) {
+        state.answers = {};
+        state.maxReachedIndex = 0;
+        state.returnTo = null;
+      }
+      state.committedType = state.type;
+      if (state.returnTo && !changed) { goTo(consumeReturnTo()); return; }
+      advanceTo(SEQUENCES[state.type][1]);
+      return;
+    }
+
+    if (state.returnTo) { goTo(consumeReturnTo()); return; }
+    var next = seq[idx + 1];
+    if (next) advanceTo(next);
+  }
+
+  function consumeReturnTo() { var t = state.returnTo; state.returnTo = null; return t; }
+
+  function advanceTo(stepId) {
+    var idx = stepIndex(stepId);
+    if (idx > state.maxReachedIndex) state.maxReachedIndex = idx;
+    state.current = stepId;
+    renderAll();
+  }
+
+  function goTo(stepId) {
+    var idx = stepIndex(stepId);
+    if (idx === -1 || idx > state.maxReachedIndex) return;
+    state.current = stepId;
+    renderAll();
+  }
+
+  function goBack() {
+    var seq = sequence();
+    var idx = stepIndex(state.current);
+    if (idx > 0) { state.current = seq[idx - 1]; renderAll(); }
+  }
+
+  function doPublish() {
+    state.current = "publish";
+    var idx = stepIndex("publish");
+    if (idx > state.maxReachedIndex) state.maxReachedIndex = idx;
+    state.publishing = true;
+    state.published = false;
+    renderAll();
+    setTimeout(function () { state.published = true; renderAll(); }, 900);
+  }
+
+  function startOver() { state = initialState(); renderAll(); closeFeedback(); }
+
+  function renderAll() { renderRail(); renderPanel(); renderHeaderBadge(); }
+
+  /* ---------- in-context feedback ---------- */
+
+  // Human-readable trail of every choice made before the current step —
+  // this is what gets auto-attached to a feedback note, so the requester
+  // never has to describe where they are or what they'd already picked.
+  function contextTrail() {
+    var seq = sequence();
+    var idx = stepIndex(state.current);
+    var trail = [];
+    for (var i = 0; i < idx; i++) {
+      var sid = seq[i];
+      if (sid === "type") {
+        var t = findOption(TYPE_OPTIONS, state.type);
+        if (t) trail.push(t.label);
+        continue;
+      }
+      if (sid === "governance") {
+        var g = state.answers.governance || {};
+        var parts = [];
+        var accessOpt = findOption(GOV_ACCESS, g.access);
+        var expiryOpt = findOption(GOV_EXPIRY, g.expiry);
+        if (accessOpt) parts.push(accessOpt.label);
+        if (expiryOpt) parts.push(expiryOpt.label);
+        if (g.access === "role" && (g.roleIds || []).length) parts.push(g.roleIds.map(roleLabel).join(" & "));
+        if (parts.length) trail.push(parts.join(" / "));
+        continue;
+      }
+      var opts = STEP_OPTIONS[sid];
+      var ans = state.answers[sid];
+      if (Array.isArray(ans)) {
+        var labels = ans.map(function (a) { var o = findOption(opts, a); return o ? o.label : a; });
+        if (labels.length) trail.push(labels.join(" + "));
+      } else if (ans) {
+        var o = findOption(opts, ans);
+        if (o) trail.push(o.label);
+      }
+    }
+    return trail;
+  }
+
+  function feedbackPrefill() {
+    var trail = contextTrail();
+    return "Screen: " + STEP_LABELS[state.current] +
+      (trail.length ? "\nChosen so far: " + trail.join(" → ") : "\nChosen so far: just getting started") +
+      "\n\n";
+  }
+
+  function openFeedback() {
+    state.feedbackOpen = true;
+    state.feedbackJustSent = false;
+    renderFeedbackModal();
+  }
+  function closeFeedback() {
+    state.feedbackOpen = false;
+    clearTimeout(state._feedbackAutoCloseTimer);
+    renderFeedbackModal();
+  }
+  function submitFeedback() {
+    var ta = document.getElementById("feedbackTextarea");
+    var text = ta ? ta.value : "";
+    state.feedbackSent += 1;
+    state.feedbackLog.push({ step: state.current, text: text, ts: Date.now() });
+    state.feedbackJustSent = true;
+    renderFeedbackModal();
+    updateFeedbackTriggerLabel();
+    clearTimeout(state._feedbackAutoCloseTimer);
+    state._feedbackAutoCloseTimer = setTimeout(closeFeedback, 1800);
+  }
+  function updateFeedbackTriggerLabel() {
+    var label = document.getElementById("feedbackTriggerLabel");
+    if (!label) return;
+    label.textContent = state.feedbackSent > 0 ? ("Feedback (" + state.feedbackSent + ")") : "Feedback";
+  }
+
+  function renderFeedbackModal() {
+    var overlay = document.getElementById("feedbackOverlay");
+    var body = document.getElementById("feedbackModalBody");
+    if (!overlay || !body) return;
+    overlay.classList.toggle("show", state.feedbackOpen);
+    if (!state.feedbackOpen) return;
+
+    if (state.feedbackJustSent) {
+      body.innerHTML = '<div class="feedback-confirm"><div class="feedback-confirm-icon">' + checkIcon() + '</div>' +
+        '<p class="feedback-confirm-title">Feedback sent</p>' +
+        '<p class="feedback-confirm-desc">Logged with this screen’s context, so you didn’t have to type it. Thanks for flagging it.</p>' +
+        '<button class="btn btn-ghost" type="button" id="feedbackDoneBtn">Done</button></div>';
+      var doneBtn = document.getElementById("feedbackDoneBtn");
+      if (doneBtn) doneBtn.addEventListener("click", closeFeedback);
+      return;
+    }
+
+    body.innerHTML = '<p class="feedback-modal-desc">We’ve already attached where you are in the flow — just add what happened.</p>' +
+      '<textarea class="feedback-textarea" id="feedbackTextarea" aria-label="Feedback, with the current step pre-filled"></textarea>' +
+      '<div class="feedback-modal-actions"><button class="btn btn-ghost" type="button" id="feedbackCancelBtn">Cancel</button>' +
+      '<button class="btn btn-primary" type="button" id="feedbackSendBtn" style="margin-left:0;">Send Feedback</button></div>';
+    var ta = document.getElementById("feedbackTextarea");
+    var prefill = feedbackPrefill();
+    ta.value = prefill;
+    ta.focus();
+    ta.setSelectionRange(prefill.length, prefill.length);
+    document.getElementById("feedbackCancelBtn").addEventListener("click", closeFeedback);
+    document.getElementById("feedbackSendBtn").addEventListener("click", submitFeedback);
+  }
+
+  els.startOverBtn.addEventListener("click", startOver);
+  document.getElementById("feedbackTriggerBtn").addEventListener("click", openFeedback);
+  document.getElementById("feedbackCloseBtn").addEventListener("click", closeFeedback);
+  document.getElementById("feedbackOverlay").addEventListener("click", function (e) {
+    if (e.target.id === "feedbackOverlay") closeFeedback();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && state.feedbackOpen) closeFeedback();
+  });
+
+  renderAll();
+})();
+</script>

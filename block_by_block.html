@@ -553,6 +553,48 @@
   }
   .frame-glow.pulse { box-shadow: 0 0 0 6px var(--gold-soft); }
 
+  /* in-context feedback capability */
+  .bar-right { display: flex; align-items: center; gap: 8px; flex: none; }
+  .feedback-fab {
+    width: 24px; height: 24px; border-radius: 50%; flex: none;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: scale(0.6);
+    transition: opacity 0.35s ease, transform 0.35s ease, background 0.15s ease;
+  }
+  .feedback-fab.show { opacity: 1; transform: none; }
+  .feedback-fab svg { width: 12px; height: 12px; }
+  .feedback-panel {
+    margin-top: 10px;
+    border-left: 3px solid var(--gold);
+    background: var(--surface-sunken); border-radius: 0 9px 9px 0;
+    padding: 9px 11px;
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease 0.05s, margin-top 0.4s ease, padding 0.4s ease;
+  }
+  .feedback-panel.show { max-height: 120px; opacity: 1; }
+  .feedback-panel-label {
+    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.08em;
+    color: var(--gold); margin: 0 0 6px; text-transform: uppercase;
+  }
+  .feedback-context-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 9.5px; font-weight: 500; color: var(--info);
+    background: var(--info-soft); border-radius: 999px;
+    padding: 3px 8px; margin: 0 0 7px;
+  }
+  .feedback-context-chip svg { width: 9px; height: 9px; }
+  .feedback-note {
+    font-size: 10.5px; color: var(--text); font-style: italic;
+    margin: 0 0 7px; line-height: 1.4;
+  }
+  .feedback-sent-row {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 500; color: var(--good);
+  }
+  .feedback-sent-row svg { width: 11px; height: 11px; flex: none; }
+
   /* ---------- caption bar ---------- */
   .caption-bar {
     border-top: 1px solid var(--line);
@@ -600,7 +642,7 @@
     <div>
       <p class="stage-kicker">SELF-SERVE PLATFORM &middot; BUILDING BLOCKS</p>
       <h1 class="stage-title">Block by Block</h1>
-      <p class="stage-sub">Nine platform capabilities, each independently reusable, assembling into one governed self-serve app &mdash; no bespoke build required.</p>
+      <p class="stage-sub">Ten platform capabilities, each independently reusable, assembling into one governed self-serve app &mdash; feedback capture included, not bolted on after launch.</p>
     </div>
     <button class="replay-btn" id="replayBtn" type="button" aria-label="Replay the assembly sequence">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
@@ -621,6 +663,7 @@
       <div class="block-item" data-block="6"><span class="dot"></span><span class="txt"><span class="tag">access.guard()</span><span class="label">View / Print / Export Rules</span></span></div>
       <div class="block-item" data-block="7"><span class="dot"></span><span class="txt"><span class="tag">access.expiry()</span><span class="label">Time-Bound Access</span></span></div>
       <div class="block-item" data-block="8"><span class="dot"></span><span class="txt"><span class="tag">flow.trigger()</span><span class="label">Workflow Template</span></span></div>
+      <div class="block-item" data-block="9"><span class="dot"></span><span class="txt"><span class="tag">feedback.capture()</span><span class="label">In-Context Feedback</span></span></div>
     </div>
 
     <div class="canvas" id="canvas">
@@ -628,7 +671,12 @@
         <div class="frame-glow" id="frameGlow"></div>
         <div class="app-frame__bar">
           <span class="app-frame__name">Vendor Data Report</span>
-          <span class="conn-pill" id="connPill"><span class="ping"></span>Connected &middot; CMDB API</span>
+          <span class="bar-right">
+            <span class="conn-pill" id="connPill"><span class="ping"></span>Connected &middot; CMDB API</span>
+            <button class="feedback-fab" id="feedbackFab" type="button" aria-label="Give feedback on this screen" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </button>
+          </span>
         </div>
         <div class="app-frame__body" id="appBody">
           <div class="login-overlay" id="loginOverlay">
@@ -700,6 +748,19 @@
             3 records synced from CMDB
           </div>
 
+          <div class="feedback-panel" id="feedbackPanel">
+            <p class="feedback-panel-label">Feedback &middot; this screen</p>
+            <span class="feedback-context-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+              Auto-attached: Export &amp; Guardrails
+            </span>
+            <p class="feedback-note">&ldquo;PDF export felt locked with no explanation &mdash; a tooltip would help.&rdquo;</p>
+            <span class="feedback-sent-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Sent &mdash; no form to fill out
+            </span>
+          </div>
+
           <div class="click-hint" id="clickHint" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             <span id="clickHintText">Click to begin</span>
@@ -722,8 +783,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
       </button>
     </div>
-    <span class="step-count" id="stepCount">0 / 9</span>
-    <p class="caption-text" id="captionText" aria-live="polite">Nine building blocks, one self-serve app. Click Next &mdash; or any block &mdash; to begin.</p>
+    <span class="step-count" id="stepCount">0 / 10</span>
+    <p class="caption-text" id="captionText" aria-live="polite">Ten building blocks, one self-serve app. Click Next &mdash; or any block &mdash; to begin.</p>
     <button class="speed-btn" id="speedBtn" type="button" aria-label="Change autoplay speed">Speed: Slow</button>
     <div class="progress-dots" id="progressDots"></div>
   </div>
@@ -741,10 +802,11 @@
     { tag: "approve.chain()", caption: "<b>Multi-layer approval</b> routes sensitive actions through Manager, Compliance, and Finance." },
     { tag: "access.guard()", caption: "<b>View / print / export rules</b> govern which formats are actually allowed." },
     { tag: "access.expiry()", caption: "<b>Time-bound access</b> — this view expires on its own, no manual revocation." },
-    { tag: "flow.trigger()", caption: "<b>Workflow template</b> automatically notifies the data owner whenever it's exported." }
+    { tag: "flow.trigger()", caption: "<b>Workflow template</b> automatically notifies the data owner whenever it's exported." },
+    { tag: "feedback.capture()", caption: "<b>In-context feedback</b> lets anyone flag confusion or something missing, right where it happens &mdash; captured with the screen's context attached, no separate form." }
   ];
-  var DONE_CAPTION = "<b>Self-serve app, assembled</b> &mdash; nine reusable platform blocks, zero bespoke build.";
-  var IDLE_CAPTION = "Nine building blocks, one self-serve app. Click Next &mdash; or any block &mdash; to begin.";
+  var DONE_CAPTION = "<b>Self-serve app, assembled</b> &mdash; ten reusable platform blocks, feedback capture included, zero bespoke build.";
+  var IDLE_CAPTION = "Ten building blocks, one self-serve app. Click Next &mdash; or any block &mdash; to begin.";
   var SPEEDS = [
     { label: "Slow", ms: 3200 },
     { label: "Normal", ms: 2000 },
@@ -775,6 +837,8 @@
     expiryTag: document.getElementById("expiryTag"),
     workflowTag: document.getElementById("workflowTag"),
     frameGlow: document.getElementById("frameGlow"),
+    feedbackFab: document.getElementById("feedbackFab"),
+    feedbackPanel: document.getElementById("feedbackPanel"),
     replayBtn: document.getElementById("replayBtn"),
     prevBtn: document.getElementById("prevBtn"),
     nextBtn: document.getElementById("nextBtn"),
@@ -877,8 +941,12 @@
     // step 7+: time-bound access
     els.expiryTag.classList.toggle("show", i >= 7);
 
-    // step 8: workflow template + finished glow
+    // step 8+: workflow template
     els.workflowTag.classList.toggle("show", i >= 8);
+
+    // step 9: in-context feedback + finished glow
+    els.feedbackFab.classList.toggle("show", i >= 9);
+    els.feedbackPanel.classList.toggle("show", i >= 9);
     els.frameGlow.classList.toggle("pulse", atLast);
 
     // controls
